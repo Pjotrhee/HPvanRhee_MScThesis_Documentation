@@ -13,7 +13,7 @@ def build_mpc_matrices(N, dt, Wf, Wr, Wp, Pmax, Pmin, Pref):
 
     # Open continuous model
     base_dir = os.path.dirname(os.path.abspath(__file__))
-    file_path = os.path.join(base_dir, "COI_models", "CEN_type2_2_model.mat")
+    file_path = os.path.join(base_dir, "COI_models", "CEN_model.mat")
     data = sio.loadmat(file_path)
     A_full  = data['A_ssm']
     B_full  = data['B_ssm']
