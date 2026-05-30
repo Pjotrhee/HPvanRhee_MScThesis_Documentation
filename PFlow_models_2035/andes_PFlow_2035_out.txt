@@ -3,7 +3,7 @@ Copyright (C) 2015-2026 Hantao Cui
 
 ANDES comes with ABSOLUTELY NO WARRANTY
 Case file: andes_PFlow_2035.xlsx
-Report time: 01/09/2026 12:21:39 AM
+Report time: 05/30/2026 03:12:37 PM
 
 Power flow converged in 9 iterations.
 Flat-start: No

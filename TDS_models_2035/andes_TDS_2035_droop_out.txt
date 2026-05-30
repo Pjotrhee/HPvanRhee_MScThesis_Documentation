@@ -3,7 +3,7 @@ Copyright (C) 2015-2026 Hantao Cui
 
 ANDES comes with ABSOLUTELY NO WARRANTY
 Case file: andes_TDS_2035_droop.xlsx
-Report time: 01/09/2026 12:25:40 AM
+Report time: 05/30/2026 03:14:50 PM
 
 Power flow converged in 9 iterations.
 Flat-start: No
