@@ -14,11 +14,9 @@ def mpc_func(psihat_0, x_ref, u_ref, N, data):
 
     x_ref_hor = np.kron(np.ones((N+1,1)), x_ref)
     u_ref_hor = np.kron(np.ones((N,1)), u_ref)
-    
     u_hor = cp.Variable((dim_m*N, 1))
 
     Const_P = [A_p @ u_hor <= P_tilde + (b_p @ psihat_0)]
-
     Constraints = Const_P
 
     J = cp.quad_form(u_hor, H) + (2 * np.hstack([psihat_0.T, -x_ref_hor.T, -u_ref_hor.T]) @ h @ u_hor)

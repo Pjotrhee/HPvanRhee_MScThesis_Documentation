@@ -280,7 +280,6 @@ class REGF1W_MPC_IDModel(Model):
 
         # s9 and s11
 
-        #Switching Power reference, between recovery and normal/FFR mode
         self.P_pre = Lag(u='Psen_y', K=1, T=self.Tpm)
 
 

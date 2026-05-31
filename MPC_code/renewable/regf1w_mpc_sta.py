@@ -429,7 +429,7 @@ class REGF1W_MPC_STAModel(Model):
             xehat_0 = self.xehat[k_now-1]
             xnom_0 = self.xnom[k_now-1]
             
-            # Updte state estimate if not already update at this time step
+            # Update state estimate if not already update at this time step
             kkey = k_now
             if kkey not in self.xehat:
                 u_k = self.u_store

@@ -38,7 +38,6 @@ def build_mpc_matrices(N, inv, dt, Wf, Wr, Wp, Pmax, Pmin, Pref):
     Cc = C_t @ E.T
     Dc = D_t 
 
-
     sysc = ct.ss(Ac,Bc[:,1:2],Cc,Dc[:,1:2])
 
     #Discretize
@@ -49,8 +48,6 @@ def build_mpc_matrices(N, inv, dt, Wf, Wr, Wp, Pmax, Pmin, Pref):
     D = sysd.D
     
     #Discretize for disturbance channel
-    #Bc_d = Bc[:,1:2]
-    #sysc_d = ct.ss(Ac,Bc_d,Cc,Dc[:,1:2])
     Bc_d = Bc[:,0:1]
     sysc_d = ct.ss(Ac,Bc_d,Cc,Dc[:,0:1])
     sysd_d = ct.c2d(sysc_d, dt, 'zoh')
@@ -68,7 +65,7 @@ def build_mpc_matrices(N, inv, dt, Wf, Wr, Wp, Pmax, Pmin, Pref):
     dim_pc = 1
     dim_x = 1
 
-    #Of optimal setpoint
+    #Optimal setpoint
     H_ref = np.hstack([np.zeros((dim_k-dim_f, dim_f)),np.eye(dim_k-dim_f)])
     vd = np.hstack([np.zeros((dim_d, dim_n)),np.eye(dim_d)])
 
@@ -144,7 +141,6 @@ def build_mpc_matrices(N, inv, dt, Wf, Wr, Wp, Pmax, Pmin, Pref):
     A_p = np.vstack([Vp @ Sc, - Vp @ Sc])
     b_p = np.vstack([-Vp @ Tc, Vp @ Tc])
     P_tilde = np.vstack([((0.99*Pmax)-Pref)*np.ones((N,1)), -(Pmin-Pref)*np.ones((N,1))]) # Pmax and Pref must be in p.u. Sbase
-
 
     # Choose reasonable covariances and tune them:
     Qw = np.diag(dim_theta*[1e-4] + dim_f*[1e-4] +  [1e-4] +  dim_pc*[1e-4] + dim_pc*[1e-4] + dim_d*[10])     # process noise covariance (tune)

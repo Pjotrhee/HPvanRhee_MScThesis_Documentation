@@ -18,6 +18,7 @@ def optimal_ref(data, d_hat):
     dim_f = 8
     dim_p = 8
 
+    # Output and controlled variable reference
     y_ref = np.vstack([np.ones((dim_f, 1)), np.zeros((dim_k-dim_f,1))]) # setpoint (y_sp)
     r_ref = H @ y_ref
 

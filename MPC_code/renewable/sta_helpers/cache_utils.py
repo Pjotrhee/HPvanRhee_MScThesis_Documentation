@@ -3,6 +3,8 @@
 This module provides deterministic hashing of inputs and simple
 pickle-based load/save helpers for caching expensive preprocessing
 results such as constraint tightening and terminal-set calculations.
+
+made by -- ChatGPT
 """
 
 from __future__ import annotations

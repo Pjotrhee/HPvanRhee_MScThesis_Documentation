@@ -7,17 +7,15 @@ def mpc_func(xnom_0, dhat_0, x_ref, u_ref, N, data):
     dim_m = data['dim_m']
     dim_d = data['dim_d']
 
-
     H = data['H']
     h = data['h']
 
     x_ref_hor = np.kron(np.ones((N+1,1)), x_ref)
     u_ref_hor = np.kron(np.ones((N,1)), u_ref)
     dhat_hor = np.kron(np.ones((N,1)), dhat_0) # Or N+1???
-
     u_hor = cp.Variable((dim_m*N, 1))
 
-    #State constraint
+    #Input constraint
     Au = data['Au']
     bu = data['bu']
     Const_u = [Au @ u_hor <= bu]
@@ -42,8 +40,8 @@ def mpc_func(xnom_0, dhat_0, x_ref, u_ref, N, data):
 
     #Combine constraints
     Constraints = Const_u + Const_x + Const_t
-    #Constraints = []
 
+    #Objective
     J = 0.5*cp.quad_form(u_hor, H) + (np.hstack([xnom_0.T, dhat_hor.T, -x_ref_hor.T, -u_ref_hor.T]) @ h @ u_hor)
     Objective = cp.Minimize(J)
     

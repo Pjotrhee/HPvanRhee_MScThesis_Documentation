@@ -40,14 +40,10 @@ def optimal_ref(data, d_hat):
 
     # Objective
     R = np.eye(dim_m)
-
     J = cp.quad_form(u, R)
     Objective = cp.Minimize(J)
     
     prob = cp.Problem(Objective, Constraints)
     prob.solve(solver=cp.GUROBI)
-
-    #prob.solve(solver=cp.GUROBI, reoptimize=True)
-    #print("Status:", prob.status)
 
     return x.value, u.value

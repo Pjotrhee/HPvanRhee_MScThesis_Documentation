@@ -421,7 +421,7 @@ class REGF1W_MPC_CENModel(Model):
             # Open last state estimate
             xhat_0 = self.xhat[k_now-1]
             
-            # Updte state estimate if not already update at this time step
+            # Update state estimate if not already updated at this time step
             kkey = k_now
             if kkey not in self.xhat:
                 u_k = self.u_store

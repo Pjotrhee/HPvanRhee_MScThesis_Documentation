@@ -1,20 +1,6 @@
 import numpy as np
 
 def pred_matrices(A, B, N):
-    """
-    Compute prediction matrices T and S.
-
-    Parameters
-    ----------
-    A : State matrix
-    B : Input matrix
-    N : Prediction horizon
-
-    Returns
-    -------
-    T and S
-    """
-
     n = A.shape[0]
     m = B.shape[1]
 

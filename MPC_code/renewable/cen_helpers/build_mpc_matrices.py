@@ -60,8 +60,6 @@ def build_mpc_matrices(N, dt, Wf, Wr, Wp, Pmax, Pmin, Pref):
 
       
     #Discretize for disturbance channels (Each frequency state gets its own disturbance estimate)
-    #proto_Bd = Bc[:,0:8]
-    #proto_Bd = np.vstack([np.diag(Bc[0:dim_f,0:1].reshape(dim_f)), np.zeros((dim_n-dim_f,dim_f))])
     proto_Bd = Bc[:,0:1]
     sysc_d = ct.ss(Ac,proto_Bd,Cc,np.zeros((dim_k,proto_Bd.shape[1])))
     sysd_d = ct.c2d(sysc_d, dt, 'zoh')
@@ -70,7 +68,7 @@ def build_mpc_matrices(N, dt, Wf, Wr, Wp, Pmax, Pmin, Pref):
 
     dim_d = Bd.shape[1] # number of disturbance channels
 
-    #Of optimal setpoint
+    #Optimal setpoint
     H_ref = np.hstack([np.zeros((dim_k-dim_f, dim_f)),np.eye(dim_k-dim_f)])
 
     vd = np.hstack([np.zeros((dim_d, dim_n)),np.eye(dim_d)]) # To get d_hat from xe_hat
@@ -144,10 +142,8 @@ def build_mpc_matrices(N, dt, Wf, Wr, Wp, Pmax, Pmin, Pref):
     h = np.vstack([Tc.T @ Q_tilde @ Sc, Q_tilde @ Sc, R_tilde])
 
     #Constraints matrices
-    # Pe limits (HARD)
     A_p = np.vstack([Vp @ Sc, - Vp @ Sc])
     b_p = np.vstack([-Vp @ Tc, Vp @ Tc])
-
 
     P_tilde = np.vstack([np.kron(np.ones((N,1)),((0.99*Pmax.reshape(-1,1))-Pref.reshape(-1,1))), np.kron(np.ones((N,1)), -(Pmin.reshape(-1,1)-Pref.reshape(-1,1)))]) # Pmax and Pref must be in p.u. Sbase
 

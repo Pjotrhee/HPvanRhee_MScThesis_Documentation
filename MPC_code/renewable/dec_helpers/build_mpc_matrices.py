@@ -27,8 +27,6 @@ def build_mpc_matrices(N, inv, dt, Wf, Wr, Wp, Pmax, Pmin, Pref):
     D = sysd.D
     
     #Discretize for disturbance channel
-    #Bc_d = Bc[:,1:2]
-    #sysc_d = ct.ss(Ac,Bc_d,Cc,Dc[:,1:2])
     Bc_d = Bc[:,0:1]
     sysc_d = ct.ss(Ac,Bc_d,Cc,Dc[:,0:1])
     sysd_d = ct.c2d(sysc_d, dt, 'zoh')
@@ -45,7 +43,7 @@ def build_mpc_matrices(N, inv, dt, Wf, Wr, Wp, Pmax, Pmin, Pref):
     dim_pc = 1
     dim_x = 1
 
-    #Of optimal setpoint
+    #Optimal setpoint
     H_ref = np.hstack([np.zeros((dim_pc, dim_f)),np.eye(dim_pc)])
 
     vd = np.hstack([np.zeros((dim_d, dim_n)),np.eye(dim_d)])
@@ -82,9 +80,6 @@ def build_mpc_matrices(N, inv, dt, Wf, Wr, Wp, Pmax, Pmin, Pref):
     if rank_M != dim_n + dim_d:
         print("WARNING: Rank condition not satisfied.")
         print(f"Rank = {rank_M}, expected = {dim_n + dim_d}")
-
-    
-
 
     #Extend the system
     Ae = np.vstack([np.hstack([A, Bd]), np.hstack([np.zeros((dim_d,dim_n)),np.eye(dim_d)])])

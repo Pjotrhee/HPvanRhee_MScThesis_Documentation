@@ -43,7 +43,6 @@ def build_mpc_matrices(N, dt, Wf, Wr, Wp, Pmax, Pmin, Pref):
     Cc = C_t @ E.T
     Dc = D_t
 
-    #sysc = ct.ss(Ac,Bc[:,8:16],Cc,Dc[:,8:16])
     sysc = ct.ss(Ac,Bc[:,1:9],Cc,Dc[:,1:9])
 
     #Discretize
@@ -105,7 +104,7 @@ def build_mpc_matrices(N, dt, Wf, Wr, Wp, Pmax, Pmin, Pref):
 
     Dd = np.zeros((dim_f+dim_f+dim_p,dim_d))
 
-    #Of optimal setpoint
+    #Optimal setpoint
     H_ref = np.hstack([np.zeros((dim_p, dim_f+dim_f)),np.eye(dim_p)])
 
     vd = np.hstack([np.zeros((dim_d, dim_n)),np.eye(dim_d)]) # To get d_hat from xe_hat
@@ -231,7 +230,6 @@ def build_mpc_matrices(N, dt, Wf, Wr, Wp, Pmax, Pmin, Pref):
     L_x = L_obs[0:dim_ne-dim_d,:]
 
     tight_data = dict(dim_n=dim_n, dim_m=dim_m, dim_k=dim_k, dim_ne=dim_ne, C=C, K=K, L=L_obs, L_x=L_x, A=A, Bu=Bu, A_ext=Ae, C_ext=Ce, Ax=Ax, bx=bx, Au=Au, bu=bu, Aw_x=Aw_x, bw_x=bw_x, Aw=Aw, bw=bw, Av=Av, bv=bv)
-    #bx, bu = tighten_constraints(tight_data)
 
     tight_key = make_cache_key("tighten_constraints", tight_data)
     tight_file = cache_path("tighten_constraints", tight_key)
@@ -254,8 +252,6 @@ def build_mpc_matrices(N, dt, Wf, Wr, Wp, Pmax, Pmin, Pref):
     Dx_bar = - Ax_tilde @ Scd[dim_n:dim_n*(N+1),:]
 
     #Terminal Constraints
-    #c_ellipse = xf_ellipsoidal(P_dare, K, Au, bu, Ax, bx)
-
     ellipse_inputs = {
         "P_dare": P_dare,
         "K": K,
