@@ -5,17 +5,17 @@ This repository contains all relevant coding and modelling aspects for my System
 
 ```text
 HPvanRhee_MScThesis_Documentation/
-├── PFlow_2021/
-├── PFlow_2035/
+├── ID_code/
+│   └── COI_models/
+│   └── id_data/
 ├── MPC_code/
 │   └── renewable/
 │           └── cen_helpers/
 │           └── dec_helpers/
 │           └── dis_helpers/
 │           └── sta_helpers/
-├── ID_code/
-│   └── COI_models/
-│   └── id_data/
+├── PFlow_2021/
+├── PFlow_2035/
 └──  TDS_simulation_code/
 ```
 
