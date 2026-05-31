@@ -1,0 +1,16 @@
+[System]
+freq = 50
+mva = 2000
+
+[PV]
+pv2pq = 1
+min_iter = 4
+
+[PQ]
+pq2z = 0
+p2p = 1
+p2i = 0
+p2z = 0
+q2q = 1
+q2i = 0
+q2z = 0

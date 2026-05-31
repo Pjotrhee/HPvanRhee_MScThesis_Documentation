@@ -1,7 +1,7 @@
 # HPvanRhee_MScThesis_Documentation
 This repository contains all relevant coding and modelling aspects for my Systems &amp; Control MSc Thesis about MPC based FFR in the 2035 Dutch power system.
 
-SETUP:
+## SETUP:
 - For PFlow_2021 and PFlow_2035: 
     python                          version      3.10.19 
     numpy                           version      1.23.5
@@ -31,13 +31,17 @@ SETUP:
     Optimization Toolbox            version      23.2        (R2023b)
 - See matlab_requirements.txt for the full setup used
 
-After installing ANDES, copy the contents inside of the MPC_code/renewable directory into your local package installation under andes/models/renewable. Make sure to also replace the __init__.py file inside andes/models by the __init__.py file inside MPC_code. After doing this, rung the cell below to prepare the MPC controllers for use
+After installing ANDES, copy the contents inside of the MPC_code/renewable directory into your local package installation under andes/models/renewable. Make sure to also replace the __init__.py file inside andes/models by the __init__.py file inside MPC_code. After doing this restart your kernel and run ss = andes.prepare(models=['REGF1W_MPC_DEC', 'REGF1W_MPC_CEN', 'REGF1W_MPC_DIS', 'REGF1W_MPC_STA', 'REGF1W_MPC_ID']) to prepare the MPC controllers for use
 
-CONTENTS:
-Simulation model
-...
-Identification code
-...
-MPC code
-...
-Time domain simulation code
+## CONTENTS:
+### Simulation model
+The folders PFlow_2021 and PFlow_2035 contain both pandapower and ANDES versions of the simulation model of the Dutch power system for power flow comparisons.
+
+### MPC code
+The MPC_code folder contains all python code used to run the controllers in ANDES. 
+
+### Identification code
+The ID_code folder contains the python code used to generate the identification data and the MATLAB code used to identify the prediction models used.
+
+### Time domain simulation code
+The TDS_simulation_code can be used to simulate the responses of all the different controllers.
