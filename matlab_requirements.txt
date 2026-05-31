@@ -1,0 +1,23 @@
+ver
+-----------------------------------------------------------------------------------------------------
+MATLAB Version: 23.2.0.2391609 (R2023b) Update 2
+MATLAB License Number: 329139
+Operating System: Microsoft Windows 11 Home Version 10.0 (Build 26200)
+Java Version: Java 1.8.0_202-b08 with Oracle Corporation Java HotSpot(TM) 64-Bit Server VM mixed mode
+-----------------------------------------------------------------------------------------------------
+MATLAB                                                Version 23.2        (R2023b)
+Simulink                                              Version 23.2        (R2023b)
+Control System Toolbox                                Version 23.2        (R2023b)
+Global Optimization Toolbox                           Version 23.2        (R2023b)
+Image Processing Toolbox                              Version 23.2        (R2023b)
+Optimization Toolbox                                  Version 23.2        (R2023b)
+Robotics System Toolbox                               Version 23.2        (R2023b)
+Robust Control Toolbox                                Version 23.2        (R2023b)
+Signal Processing Toolbox                             Version 23.2        (R2023b)
+Simscape                                              Version 23.2        (R2023b)
+Simscape Electrical                                   Version 23.2        (R2023b)
+Statistics and Machine Learning Toolbox               Version 23.2        (R2023b)
+Symbolic Math Toolbox                                 Version 23.2        (R2023b)
+System Identification Toolbox                         Version 23.2        (R2023b)
+Wavelet Toolbox                                       Version 23.2        (R2023b)
+diary off
