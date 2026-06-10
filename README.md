@@ -16,7 +16,7 @@ HPvanRhee_MScThesis_Documentation/
 │           └── sta_helpers/
 ├── PFlow_2021/
 ├── PFlow_2035/
-└──  TDS_simulation_code/
+└── TDS_simulation_code/
 ```
 
 ## Setup
@@ -71,6 +71,7 @@ After doing this, restart your kernel and run:
 
 ```python
 ss = andes.prepare(models=[
+    'REGF1W',
     'REGF1W_MPC_DEC',
     'REGF1W_MPC_CEN',
     'REGF1W_MPC_DIS',
