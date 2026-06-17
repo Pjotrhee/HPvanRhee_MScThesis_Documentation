@@ -148,7 +148,7 @@ def build_mpc_matrices(N, dt, Wf, Wr, Wp, Pmax, Pmin, Pref):
     P_tilde = np.vstack([np.kron(np.ones((N,1)),((0.99*Pmax.reshape(-1,1))-Pref.reshape(-1,1))), np.kron(np.ones((N,1)), -(Pmin.reshape(-1,1)-Pref.reshape(-1,1)))]) # Pmax and Pref must be in p.u. Sbase
 
     # Choose reasonable covariances and tune them:
-    Qw = np.diag(dim_theta*[1e-4] + dim_f*[1e-4] +  [1e-4] +  dim_p*[1e-4] + dim_p*[1e-4] + dim_d*[10])     # process noise covariance (tune)
+    Qw = np.diag(dim_theta*[1e-4] + dim_f*[1e-4] +  [1e-4] +  dim_p*[1e-1] + dim_p*[1e-4] + dim_d*[10])     # process noise covariance (tune)
     Rv = np.diag(dim_f*[1]+dim_p*[1e-1])     # measurement noise covariance (tune)
 
     # Solve discrete ARE for estimator (note we use Ae.T, Ce.T)

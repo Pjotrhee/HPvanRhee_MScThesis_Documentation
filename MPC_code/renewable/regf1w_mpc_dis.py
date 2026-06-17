@@ -9,7 +9,8 @@ from andes.core.var import AliasAlgeb, AliasState
 from andes.core.service import ConstService, VarService
 
 from andes.models.renewable.dis_helpers.mpc_func import mpc_func
-from andes.models.renewable.dis_helpers.build_mpc_matrices import build_mpc_matrices
+from andes.models.renewable.dis_helpers.build_mpc_matrices3 import build_mpc_matrices3
+from andes.models.renewable.dis_helpers.build_mpc_matrices8 import build_mpc_matrices8
 from andes.models.renewable.dis_helpers.optimal_ref import optimal_ref
 import numpy as np
 
@@ -37,6 +38,10 @@ class REGF1W_MPC_DISData(ModelData):
                             )
         self.bus3 = IdxParam(model='Bus 3',
                             info="Measurement 3 bus id",
+                            mandatory=True,
+                            )
+        self.mbus = IdxParam(model='mBus',
+                            info="measurement bus id",
                             mandatory=True,
                             )
         self.gen = IdxParam(info="static generator index",
@@ -191,6 +196,10 @@ class REGF1W_MPC_DISData(ModelData):
                              info='Probability for measurements being lost',
                              non_negative=True,
                              )
+        self.TYPE = NumParam(default=3, tex_name='TYPE',
+                             info='Distributed type',
+                             non_negative=True,
+                             )
         self.gammap = NumParam(default=1.0,
                                info="P ratio of linked static gen",
                                tex_name=r'\gamma_P'
@@ -210,8 +219,9 @@ class REGF1W_MPC_DISModel(Model):
         Model.__init__(self, system, config)        
         self._mpc_cache = {}
         self._ref_cache = {}
-        self.xhat = {}
+        self.psihat = {}
         self.u_store = {}
+        self.f_store = {}
         self.f1_store = {}
         self.f2_store = {}
         self.f3_store = {}
@@ -299,10 +309,10 @@ class REGF1W_MPC_DISModel(Model):
         self.Qsen = Lag(u='Qe', K=1, T=self.Tr)
 
         #Frequency measurement
-        self.f = ExtAlgeb(model='BusROCOF', src='f', indexer=self.bus)
+        self.f = ExtAlgeb(model='BusROCOF', src='f', indexer=self.mbus)
         self.f2 = ExtAlgeb(model='BusROCOF', src='f', indexer=self.bus2)
         self.f3 = ExtAlgeb(model='BusROCOF', src='f', indexer=self.bus3)
-        self.rocof = ExtAlgeb(model='BusROCOF', src='Wf_y', indexer=self.bus)
+        self.rocof = ExtAlgeb(model='BusROCOF', src='Wf_y', indexer=self.mbus)
 
         # s9 and s11
         self.Psig = Lag(u='Psen_y', K=1, T=self.Tpm)
@@ -373,6 +383,7 @@ class REGF1W_MPC_DISModel(Model):
             dt_mpc = dt_sim * mpc_step_mult
 
             # Variables needed for building prediction and constraint matrices
+            TYPE = int(self.TYPE.v[i])
             N = int(self.N.v[i])
             inv = int(self.idx.v[i])
             Wf = float(self.Wf.v[i])
@@ -391,15 +402,20 @@ class REGF1W_MPC_DISModel(Model):
             key = (N, inv, dt_mpc, Wf, Wr, Wp, Pmax, Pref)
             if key not in self._mpc_cache:
                 # build_mpc_matrices should accept N, inv, dt and return matrices
-                mpc_data, ref_data = build_mpc_matrices(N, inv, dt_mpc, Wf, Wr, Wp, Pmax, Pmin, Pref)
+                if TYPE == 3:
+                    mpc_data, ref_data = build_mpc_matrices3(N, inv, dt_mpc, Wf, Wr, Wp, Pmax, Pmin, Pref)
+                elif TYPE == 8:
+                    mpc_data, ref_data = build_mpc_matrices8(N, inv, dt_mpc, Wf, Wr, Wp, Pmax, Pmin, Pref)
                 self._mpc_cache[key] = mpc_data
                 self._ref_cache[key] = ref_data
 
             # Initialize cache
             if k_now == 0:
-                self.xhat[(inv, k_now)] = np.zeros((9,1))
-                self.u_store[inv] = 0.0
-                self.mpc_switch = np.zeros((self.n,1))                      
+                if TYPE == 3:
+                    self.psihat[(inv, k_now)] = np.zeros((9,1))
+                if TYPE == 8:
+                    self.psihat[(inv, k_now)] = np.zeros((19,1))
+                self.u_store[inv] = 0.0                   
 
             if k_now % mpc_step_mult == 0 and k_now != 0: # Activate MPC only at MPC time step (not simulation time step)
                 # Open prediction matrices
@@ -407,60 +423,78 @@ class REGF1W_MPC_DISModel(Model):
                 ref_data = self._ref_cache[key]
 
                 # Read output measurements
-                freq1 = float((self.fn.v[i]*self.f.v[i]) - self.fn.v[i])
-                freq2 = float((self.fn.v[i]*self.f2.v[i]) - self.fn.v[i])
-                freq3 = float((self.fn.v[i]*self.f3.v[i]) - self.fn.v[i])
-
-                if inv in self.f1_store and rng.random() < loss_prob:
-                    freq1 = self.f1_store[inv]
-                else:
-                    freq1 = freq1
-                self.f1_store[inv] = freq1
-
-                if inv in self.f2_store and rng.random() < loss_prob:
-                    freq2 = self.f2_store[inv]
-                else:
-                    freq2 = freq2
-                self.f2_store[inv] = freq2
-
-                if inv in self.f3_store and rng.random() < loss_prob:
-                    freq3 = self.f3_store[inv]
-                else:
-                    freq3 = freq3
-                self.f3_store[inv] = freq3
-
                 P_c = float(self.Pe.v[i] - self.Pref.v[i])
-                # Add measurement noise
                 noisy_P_c = P_c + rng.normal(loc=0.0, scale=noise_std)
-                noisy_freq1 = freq1 + rng.normal(loc=0.0, scale=noise_std)
-                noisy_freq2 = freq2 + rng.normal(loc=0.0, scale=noise_std)
-                noisy_freq3 = freq3 + rng.normal(loc=0.0, scale=noise_std)
+                if TYPE == 3:
+                    freq1 = float((self.fn.v[i]*self.f.v[i]) - self.fn.v[i])
+                    freq2 = float((self.fn.v[i]*self.f2.v[i]) - self.fn.v[i])
+                    freq3 = float((self.fn.v[i]*self.f3.v[i]) - self.fn.v[i])
 
-                if f_or_p == 0.0:
-                    y_k = np.array([[noisy_freq1],[noisy_freq2],[noisy_freq3],[P_c]])
-                elif f_or_p == 1.0:
-                    y_k = np.array([[freq1],[freq2],[freq3],[noisy_P_c]])
+                    if inv in self.f1_store and rng.random() < loss_prob:
+                        freq1 = self.f1_store[inv]
+                    else:
+                        freq1 = freq1
+                    self.f1_store[inv] = freq1
+
+                    if inv in self.f2_store and rng.random() < loss_prob:
+                        freq2 = self.f2_store[inv]
+                    else:
+                        freq2 = freq2
+                    self.f2_store[inv] = freq2
+
+                    if inv in self.f3_store and rng.random() < loss_prob:
+                        freq3 = self.f3_store[inv]
+                    else:
+                        freq3 = freq3
+                    self.f3_store[inv] = freq3
+
+                    noisy_freq1 = freq1 + rng.normal(loc=0.0, scale=noise_std)
+                    noisy_freq2 = freq2 + rng.normal(loc=0.0, scale=noise_std)
+                    noisy_freq3 = freq3 + rng.normal(loc=0.0, scale=noise_std)
+
+                    if f_or_p == 0.0:
+                        y_k = np.array([[noisy_freq1],[noisy_freq2],[noisy_freq3],[P_c]])
+                    elif f_or_p == 1.0:
+                        y_k = np.array([[freq1],[freq2],[freq3],[noisy_P_c]])
+
+                elif TYPE == 8:
+                    freq = (self.fn.v*self.f.v) - self.fn.v
+
+                    for i,f in enumerate(freq):
+                        if (i,inv) in self.f_store and rng.random() < loss_prob:
+                            freq[i] = self.f_store[(i,inv)]
+                        else:
+                            freq[i] = f
+                        self.f_store[(i,inv)] = freq[i]
+                    
+                    noisy_freq = freq + rng.normal(0.0, noise_std, size=freq.shape)
+                    if f_or_p == 0.0:
+                        y_k = np.concatenate((noisy_freq,[P_c]))
+                    elif f_or_p == 1.0:
+                        y_k = np.concatenate((freq,[noisy_P_c]))
+                
 
                 # Open last state estimate
-                xhat_0 = self.xhat[(inv, k_now-1)]
+                psihat_0 = self.psihat[(inv, k_now-1)]
                 
                 # Update state estimate if not already updated at this time step
                 kkey = (inv, k_now)
-                if kkey not in self.xhat:
+                if kkey not in self.psihat:
                     u_k = np.array([[self.u_store[inv]]])
-                    xhat_next = mpc_data['A'] @ xhat_0 + mpc_data['B'] @ u_k + mpc_data['L'] @ (y_k - mpc_data['C'] @ xhat_0)
-                    self.xhat[kkey] = xhat_next
+
+                    psihat_next = mpc_data['A'] @ psihat_0 + mpc_data['B'] @ u_k + mpc_data['L'] @ (y_k.reshape(-1,1) - mpc_data['C'] @ psihat_0)
+                    self.psihat[kkey] = psihat_next
 
                 #Optimal set-point
-                dhat = ref_data['vd'] @ self.xhat[kkey]
+                dhat = ref_data['vd'] @ self.psihat[kkey]
                 x_ref, u_ref = optimal_ref(ref_data, dhat)
                 xe_ref = np.vstack([x_ref, dhat])
 
                 # Run the actual MPC optimization
-                self.u_store[inv] = mpc_func(self.xhat[kkey], xe_ref, u_ref, N, mpc_data)
+                self.u_store[inv] = mpc_func(self.psihat[kkey], xe_ref, u_ref, N, mpc_data)
             else: # Keep MPC u and xhat constant when not at MPC time step
                 if k_now != 0:
-                    self.xhat[(inv, k_now)] = self.xhat[(inv, k_now-1)]
+                    self.psihat[(inv, k_now)] = self.psihat[(inv, k_now-1)]
                 self.u_store[inv] = self.u_store[inv]
 
 
